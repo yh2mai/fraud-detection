@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t your-image-name:latest .
+          docker build -t onnx-rest-api:latest .
 
       - name: Log in to Docker Hub
         run: |
@@ -46,8 +46,8 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker tag your-image-name:latest your-dockerhub-username/your-image-name:latest
-          docker push your-dockerhub-username/your-image-name:latest
+          docker tag onnx-rest-api:latest torontoms/onnx-rest-api:latest
+          docker push torontoms/onnx-rest-api:latest
 
   deploy:
     runs-on: ubuntu-latest
