@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t onnx-rest-api:latest .
+          docker build -t onnx-rest-api:latest ./onnx/.
 
       - name: Log in to Docker Hub
         run: |
