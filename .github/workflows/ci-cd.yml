@@ -48,6 +48,4 @@ jobs:
         run: |
           docker tag onnx-rest-api:latest torontoms/onnx-rest-api:latest
           docker push torontoms/onnx-rest-api:latest
-          
-::contentReference[oaicite:0]{index=0}
  
