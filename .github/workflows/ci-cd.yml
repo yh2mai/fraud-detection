@@ -1,36 +1,46 @@
 name: CI/CD Pipeline
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
+on:  
+  push:  
+    branches:  
+      - main       # Run workflow when code is pushed to 'main' branch
+  pull_request:  
+    branches:  
       - main
 
 jobs:
-  build:
+  build-and-test:
+    name: Build
+    runs-on: ubuntu-latest  # Runner: Ubuntu VM
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+  build-and-push-docker:
+    name: Build and Push Docker Image
+    needs: build-and-test  # Run this job after 'build-and-test' passes
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          python-version: '3.8'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
         run: |
-          docker build -t onnx-rest-api:latest ./onnx/.
-
-      - name: Log in to Docker Hub
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t torontoms/onnx-rest-api:latest ./onnx/.
 
       - name: Push Docker image
         run: |
-          docker tag onnx-rest-api:latest torontoms/onnx-rest-api:latest
           docker push torontoms/onnx-rest-api:latest
- 
