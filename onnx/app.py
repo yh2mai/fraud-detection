@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import onnxruntime as ort
 import numpy as np
 from finetune import finetune_bp
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes and origins
 
 # Load the ONNX model
 model_path = "model.onnx"
