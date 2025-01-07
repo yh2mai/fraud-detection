@@ -1,0 +1,5 @@
+numpy
+flask-cors
+flask
+tensorflow==2.18.0
+scikit-learn
