@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const ONNX_REST_API_URL = process.env.REACT_APP_ONNX_URL;
+
 const FeedNewData = () => {
     const [inputs, setInputs] = useState(Array(30).fill(0.0)); // 30 input features
     const [result, setResult] = useState(0.0); // Float result label
@@ -22,7 +24,7 @@ const FeedNewData = () => {
     // Submit new data to the model
     const handleFeedData = () => {
         setLoading(true);
-        axios.post('http://localhost:5000/fine-tune', { features: [inputs], labels:[result] })
+        axios.post(`${ONNX_REST_API_URL}/fine-tune`, { features: [inputs], labels:[result] })
             .then(response => {
                 setResponseMessage(response.data.message);
                 setLoading(false);

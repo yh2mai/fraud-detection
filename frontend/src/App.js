@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import FeedNewData from './components/FeedNewData';
 import { v4 as uuidv4 } from 'uuid'; // For generating random IDs
 
+const BACKEND_REST_URL=process.env.REACT_APP_BACKEND_URL;
+
 const App = () => {
     const [inputs, setInputs] = useState(Array(30).fill(0.0)); // 30 input features
     const [prediction, setPrediction] = useState(null);
@@ -18,7 +20,8 @@ const App = () => {
     const handlePredict = () => {
         setLoading(true);
         const transactionId = uuidv4(); // Generate a random ID
-        fetch('http://localhost:5001/predict', {
+
+        fetch(`${BACKEND_REST_URL}/predict`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({"transaction":[inputs], "id":transactionId}),
@@ -29,7 +32,7 @@ const App = () => {
 
                 // Poll for result
                 const interval = setInterval(() => {
-                    fetch(`http://localhost:5001/result/${data.correlation_id}`)
+                    fetch(`${BACKEND_REST_URL}/result/${data.correlation_id}`)
                         .then(response => response.json())
                         .then(result => {
                             if (result.status !== 'processing') {
