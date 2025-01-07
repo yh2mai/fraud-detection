@@ -1,21 +1,29 @@
 from flask import Blueprint, request, jsonify
 from kafka import KafkaProducer, KafkaConsumer
+import os
+from dotenv import load_dotenv
 import json
 import uuid
 import threading
+from flask_cors import CORS
 
 api = Blueprint("api", __name__)
 
+CORS(api) 
+
+# Load environment variables
+load_dotenv(dotenv_path=f".env.{os.getenv('ENV', 'dev')}")
+kafka_service=os.environ.get("KAFKA_SERVICE", "localhost:9092")
+
 # Kafka setup
 producer = KafkaProducer(
-    bootstrap_servers='localhost:9092',
+    bootstrap_servers=kafka_service,
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 consumer = KafkaConsumer(
     'response_topic',
-    bootstrap_servers='localhost:9092',
-    value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-    group_id="rest-api-group"
+    bootstrap_servers=kafka_service,
+    value_deserializer=lambda m: json.loads(m.decode('utf-8'))
 )
 
 results_store = {}  # Temporary storage for results
@@ -24,14 +32,14 @@ results_store = {}  # Temporary storage for results
 def predict():
     transaction = request.json
     correlation_id = str(uuid.uuid4())
-
+    
     # Send transaction to Kafka
-    result=producer.send('raw_transactions', value={
+    producer.send('raw_transactions', value={
         "transaction": transaction,
         "correlation_id": correlation_id,
         "response_topic": "response_topic"
     })
-
+    
     # Respond immediately with the correlation ID
     return jsonify({"correlation_id": correlation_id}), 202
 
@@ -50,6 +58,7 @@ def consume_kafka_responses():
     for message in consumer:
         response = message.value
         correlation_id = response["correlation_id"]
+        print ('response_topic consumer ')
         results_store[correlation_id] = response["result"]
 
 

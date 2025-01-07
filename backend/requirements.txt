@@ -1,2 +1,6 @@
 Flask==3.0.0
 flask-cors
+kafka-python
+six
+python-dotenv
+requests

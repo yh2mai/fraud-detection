@@ -7,22 +7,25 @@ import json
 import requests
 from threading import Thread
 
+# Load environment variables
+load_dotenv(dotenv_path=f".env.{os.getenv('ENV', 'dev')}")
+kafka_service=os.environ.get("KAFKA_SERVICE", "localhost:9092")
+
 # Kafka consumer setup
 consumer = KafkaConsumer(
 'raw_transactions',
-bootstrap_servers='localhost:9092',
+bootstrap_servers=kafka_service,
 value_deserializer=lambda m: json.loads(m.decode('utf-8'))
 )
 
 # Kafka producer for response
 producer = KafkaProducer(
-bootstrap_servers='localhost:9092',
+bootstrap_servers=kafka_service,
 value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-# Load environment variables
-load_dotenv()
-onnx_api_service_url = os.environ.get("ONNX_API_SERVICE", "http://localhost:5000")
+
+onnx_api_service_url = os.environ.get("ML_API_SERVICE", "http://localhost:5000")
 
 def process_transactions():
     for message in consumer:
@@ -30,6 +33,8 @@ def process_transactions():
         transaction = data["transaction"]
         correlation_id = data["correlation_id"]
         response_topic = data["response_topic"]
+
+        print ('raw_transactions: correlation_id ' + correlation_id)
 
         # Construct the full URL for the /predict endpoint
         predict_url = f"{onnx_api_service_url}/predict"
@@ -41,6 +46,7 @@ def process_transactions():
         )
         prediction = response.json()["outputs"]
 
+        print (prediction[0][0])
         # Prepare and send the response message
         response_message = {
             "correlation_id": correlation_id,
