@@ -39,8 +39,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t torontoms/onnx-rest-api:latest ./onnx/.
+          docker build -t torontoms/ml:latest ./ml/.
 
       - name: Push Docker image
         run: |
-          docker push torontoms/onnx-rest-api:latest
+          docker push torontoms/ml:latest
